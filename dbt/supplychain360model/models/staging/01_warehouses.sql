@@ -12,6 +12,7 @@ SELECT
     
     CAST(city AS STRING) AS city,
     CAST(state AS STRING) AS state,
+    CONCAT(city, ', ', state) as warehouse_location,
 
     {{ to_utc('_airbyte_extracted_at') }} AS extracted_date
 
