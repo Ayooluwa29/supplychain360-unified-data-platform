@@ -1,169 +1,167 @@
 version: 2
 
-sources:
-  - name: supplychain360_db
+models:
+
+  - name: 01_inventory
     description: ""
-    tables:
-      - name: 01_inventory
+    columns:
+      - name: row_id
+        data_type: string
         description: ""
-        columns:
-          - name: row_id
-            data_type: string
-            description: ""
-          - name: product_id
-            data_type: string
-            description: ""
-          - name: warehouse_id
-            data_type: string
-            description: ""
-          - name: reorder_threshold
-            data_type: int64
-            description: ""
-          - name: quantity_available
-            data_type: int64
-            description: ""
-          - name: snapshot_date
-            data_type: date
-            description: ""
+      - name: product_id
+        data_type: string
+        description: ""
+      - name: warehouse_id
+        data_type: string
+        description: ""
+      - name: reorder_threshold
+        data_type: int64
+        description: ""
+      - name: quantity_available
+        data_type: int64
+        description: ""
+      - name: snapshot_date
+        data_type: date
+        description: ""
 
-      - name: 01_products
+  - name: 01_products
+    description: ""
+    columns:
+      - name: product_id
+        data_type: string
         description: ""
-        columns:
-          - name: product_id
-            data_type: string
-            description: ""
-          - name: supplier_id
-            data_type: string
-            description: ""
-          - name: product_name
-            data_type: string
-            description: ""
-          - name: brand
-            data_type: string
-            description: ""
-          - name: category
-            data_type: string
-            description: ""
-          - name: unit_price
-            data_type: numeric
-            description: ""
-          - name: extracted_date
-            data_type: timestamp
-            description: ""
+      - name: supplier_id
+        data_type: string
+        description: ""
+      - name: product_name
+        data_type: string
+        description: ""
+      - name: brand
+        data_type: string
+        description: ""
+      - name: category
+        data_type: string
+        description: ""
+      - name: unit_price
+        data_type: numeric
+        description: ""
+      - name: extracted_date
+        data_type: timestamp
+        description: ""
 
-      - name: 01_sales
+  - name: 01_sales
+    description: ""
+    columns:
+      - name: transaction_id
+        data_type: string
         description: ""
-        columns:
-          - name: transaction_id
-            data_type: string
-            description: ""
-          - name: store_id
-            data_type: string
-            description: ""
-          - name: product_id
-            data_type: string
-            description: ""
-          - name: unit_price
-            data_type: numeric
-            description: ""
-          - name: sale_amount
-            data_type: numeric
-            description: ""
-          - name: discount_pct
-            data_type: numeric
-            description: ""
-          - name: quantity_sold
-            data_type: int64
-            description: ""
-          - name: transaction_timestamp
-            data_type: timestamp
-            description: ""
+      - name: store_id
+        data_type: string
+        description: ""
+      - name: product_id
+        data_type: string
+        description: ""
+      - name: unit_price
+        data_type: numeric
+        description: ""
+      - name: sale_amount
+        data_type: numeric
+        description: ""
+      - name: discount_pct
+        data_type: numeric
+        description: ""
+      - name: quantity_sold
+        data_type: int64
+        description: ""
+      - name: transaction_timestamp
+        data_type: timestamp
+        description: ""
 
-      - name: 01_shippments
+  - name: 01_shipments
+    description: ""
+    columns:
+      - name: shipment_id
+        data_type: string
         description: ""
-        columns:
-          - name: shipment_id
-            data_type: string
-            description: ""
-          - name: warehouse_id
-            data_type: string
-            description: ""
-          - name: store_id
-            data_type: string
-            description: ""
-          - name: product_id
-            data_type: string
-            description: ""
-          - name: quantity_shipped
-            data_type: int64
-            description: ""
-          - name: carrier
-            data_type: string
-            description: ""
-          - name: shipment_date
-            data_type: timestamp
-            description: ""
-          - name: expected_delivery_date
-            data_type: timestamp
-            description: ""
-          - name: actual_delivery_date
-            data_type: timestamp
-            description: ""
+      - name: warehouse_id
+        data_type: string
+        description: ""
+      - name: store_id
+        data_type: string
+        description: ""
+      - name: product_id
+        data_type: string
+        description: ""
+      - name: quantity_shipped
+        data_type: int64
+        description: ""
+      - name: carrier
+        data_type: string
+        description: ""
+      - name: shipment_date
+        data_type: timestamp
+        description: ""
+      - name: expected_delivery_date
+        data_type: timestamp
+        description: ""
+      - name: actual_delivery_date
+        data_type: timestamp
+        description: ""
 
-      - name: 01_stores
+  - name: 01_stores
+    description: ""
+    columns:
+      - name: store_id
+        data_type: string
         description: ""
-        columns:
-          - name: store_id
-            data_type: string
-            description: ""
-          - name: state
-            data_type: string
-            description: ""
-          - name: region
-            data_type: string
-            description: ""
-          - name: city
-            data_type: string
-            description: ""
-          - name: store_name
-            data_type: string
-            description: ""
-          - name: store_open_date
-            data_type: date
-            description: ""
+      - name: state
+        data_type: string
+        description: ""
+      - name: region
+        data_type: string
+        description: ""
+      - name: city
+        data_type: string
+        description: ""
+      - name: store_name
+        data_type: string
+        description: ""
+      - name: store_open_date
+        data_type: date
+        description: ""
 
-      - name: 01_suppliers
+  - name: 01_suppliers
+    description: ""
+    columns:
+      - name: supplier_id
+        data_type: string
         description: ""
-        columns:
-          - name: supplier_id
-            data_type: string
-            description: ""
-          - name: supplier_name
-            data_type: string
-            description: ""
-          - name: country
-            data_type: string
-            description: ""
-          - name: category
-            data_type: string
-            description: ""
-          - name: extracted_date
-            data_type: timestamp
-            description: ""
+      - name: supplier_name
+        data_type: string
+        description: ""
+      - name: country
+        data_type: string
+        description: ""
+      - name: category
+        data_type: string
+        description: ""
+      - name: extracted_date
+        data_type: timestamp
+        description: ""
 
-      - name: 01_warehouses
+  - name: 01_warehouses
+    description: ""
+    columns:
+      - name: warehouse_id
+        data_type: string
         description: ""
-        columns:
-          - name: warehouse_id
-            data_type: string
-            description: ""
-          - name: city
-            data_type: string
-            description: ""
-          - name: state
-            data_type: string
-            description: ""
-          - name: extracted_date
-            data_type: timestamp
-            description: ""
+      - name: city
+        data_type: string
+        description: ""
+      - name: state
+        data_type: string
+        description: ""
+      - name: extracted_date
+        data_type: timestamp
+        description: ""
 
