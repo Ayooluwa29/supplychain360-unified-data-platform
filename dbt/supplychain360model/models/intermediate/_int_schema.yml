@@ -1,0 +1,191 @@
+version: 2
+
+models:
+
+  - name: 02_inventory_stock_status
+    description: ""
+    columns:
+      - name: row_id
+        data_type: string
+        description: ""
+      - name: product_id
+        data_type: string
+        description: ""
+      - name: warehouse_id
+        data_type: string
+        description: ""
+      - name: snapshot_date
+        data_type: date
+        description: ""
+      - name: quantity_available
+        data_type: int64
+        description: ""
+      - name: reorder_threshold
+        data_type: int64
+        description: ""
+      - name: is_stockout
+        data_type: boolean
+        description: ""
+      - name: is_below_reorder_threshold
+        data_type: boolean
+        description: ""
+      - name: daily_stock_change
+        data_type: int64
+        description: ""
+      - name: product_name
+        data_type: string
+        description: ""
+      - name: brand
+        data_type: string
+        description: ""
+      - name: category
+        data_type: string
+        description: ""
+      - name: supplier_id
+        data_type: string
+        description: ""
+
+  - name: 02_sales_enriched
+    description: ""
+    columns:
+      - name: transaction_id
+        data_type: string
+        description: ""
+      - name: sale_date
+        data_type: date
+        description: ""
+      - name: sale_hour
+        data_type: timestamp
+        description: ""
+      - name: store_id
+        data_type: string
+        description: ""
+      - name: store_name
+        data_type: string
+        description: ""
+      - name: store_city
+        data_type: string
+        description: ""
+      - name: store_state
+        data_type: string
+        description: ""
+      - name: region
+        data_type: string
+        description: ""
+      - name: product_id
+        data_type: string
+        description: ""
+      - name: product_name
+        data_type: string
+        description: ""
+      - name: brand
+        data_type: string
+        description: ""
+      - name: category
+        data_type: string
+        description: ""
+      - name: supplier_id
+        data_type: string
+        description: ""
+      - name: quantity_sold
+        data_type: int64
+        description: ""
+      - name: unit_price
+        data_type: numeric
+        description: ""
+      - name: discount_pct
+        data_type: numeric
+        description: ""
+      - name: sale_amount
+        data_type: numeric
+        description: ""
+      - name: net_sale_amount
+        data_type: numeric
+        description: ""
+
+  - name: 02_supplier_delivery_performance
+    description: ""
+    columns:
+      - name: shipment_id
+        data_type: string
+        description: ""
+      - name: warehouse_id
+        data_type: string
+        description: ""
+      - name: store_id
+        data_type: string
+        description: ""
+      - name: product_id
+        data_type: string
+        description: ""
+      - name: carrier
+        data_type: string
+        description: ""
+      - name: quantity_shipped
+        data_type: int64
+        description: ""
+      - name: shipment_date
+        data_type: date
+        description: ""
+      - name: expected_delivery_date
+        data_type: date
+        description: ""
+      - name: actual_delivery_date
+        data_type: date
+        description: ""
+      - name: delivery_delay_days
+        data_type: int64
+        description: ""
+      - name: is_on_time
+        data_type: boolean
+        description: ""
+      - name: actual_lead_time_days
+        data_type: int64
+        description: ""
+      - name: supplier_id
+        data_type: string
+        description: ""
+      - name: supplier_name
+        data_type: string
+        description: ""
+      - name: supplier_country
+        data_type: string
+        description: ""
+      - name: supplier_category
+        data_type: string
+        description: ""
+
+  - name: 02_warehouse_movements
+    description: ""
+    columns:
+      - name: warehouse_id
+        data_type: string
+        description: ""
+      - name: product_id
+        data_type: string
+        description: ""
+      - name: snapshot_date
+        data_type: date
+        description: ""
+      - name: quantity_available
+        data_type: int64
+        description: ""
+      - name: stock_delta
+        data_type: int64
+        description: ""
+      - name: estimated_inbound
+        data_type: int64
+        description: ""
+      - name: estimated_outbound
+        data_type: int64
+        description: ""
+      - name: warehouse_city
+        data_type: string
+        description: ""
+      - name: warehouse_state
+        data_type: string
+        description: ""
+      - name: warehouse_location
+        data_type: string
+        description: ""
+
