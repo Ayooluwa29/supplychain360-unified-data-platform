@@ -13,7 +13,7 @@ SELECT
     
     CAST(supplier_name AS STRING) AS supplier_name,
     CAST(country AS STRING) AS country,
-    CAST(category AS STRING) AS category,
+    CAST(category AS STRING) AS supplier_category,
 
     {{ to_utc('_airbyte_extracted_at') }} AS extracted_date
 
