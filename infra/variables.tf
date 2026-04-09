@@ -102,3 +102,45 @@ variable "profile" {
   description = "AWS CLI profile to use"
   type        = string
 }
+
+# GCP
+variable "gcp_project_id" {
+  description = "GCP project ID where BigQuery lives"
+  type        = string
+}
+
+variable "gcp_region" {
+  description = "GCP region for BigQuery dataset"
+  type        = string
+  default     = "EU"
+}
+
+variable "gcp_credentials_file" {
+  description = "Path to GCP service account JSON key file"
+  type        = string
+}
+
+# BigQuery
+variable "bq_dataset_id" {
+  description = "BigQuery dataset ID for raw layer"
+  type        = string
+  default     = "supplychain360_db"
+}
+
+variable "bq_dataset_description" {
+  description = "Description for the BigQuery dataset"
+  type        = string
+  default     = "Multi layer"
+}
+
+variable "bq_location" {
+  description = "BigQuery dataset location"
+  type        = string
+  default     = "EU"
+}
+
+variable "delete_contents_on_destroy" {
+  description = "Allow deleting dataset contents on destroy"
+  type        = bool
+  default     = false
+}

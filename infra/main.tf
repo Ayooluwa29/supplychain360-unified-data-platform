@@ -12,3 +12,9 @@ provider "aws" {
   region  = var.aws_region
   profile = var.profile
 }
+
+provider "google" {
+  project     = var.gcp_project_id
+  region      = var.gcp_region
+  credentials = file(var.gcp_credentials_file)
+}
