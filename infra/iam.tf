@@ -150,6 +150,8 @@ resource "aws_iam_user_policy" "engineer_2_s3_raw_access" {
         Effect = "Allow"
         Action = [
           "iam:DeleteUser", "iam:GetUser", "iam:UpdateUser",
+          "iam:CreateAccessKey", "iam:DeleteAccessKey",
+          "iam:AttachUserPolicy", "iam:PutUserPolicy",
           "s3:DeleteBucket", "s3:GetBucketLocation"
         ]
         Resource = "*"
