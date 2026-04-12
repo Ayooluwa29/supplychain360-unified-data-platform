@@ -68,7 +68,37 @@ jobs:
           # Substitute env vars into profiles.yml
           sed -i "s|\$GCP_PROJECT_ID|${{ secrets.GCP_PROJECT_ID }}|g" ~/.dbt/profiles.yml
           sed -i "s|\$DBT_BIGQUERY_DATASET|${{ secrets.DBT_BIGQUERY_DATASET }}|g" ~/.dbt/profiles.yml
-
+      
+      # Debug connection setup
+      - name: Debug connection setup
+        if: |
+          contains(github.ref_name, 'feature-modeling') ||
+          github.ref_name == 'dev'
+        run: |
+          echo "=== Keyfile validation ==="
+          python3 -c "
+          import json
+          with open('/tmp/gcp_keyfile.json') as f:
+              content = f.read()
+          print('File size:', len(content), 'bytes')
+          print('First 30 chars:', repr(content[:30]))
+          try:
+              data = json.loads(content)
+              print('Valid JSON: YES')
+              print('type:', data.get('type'))
+              print('project_id:', data.get('project_id'))
+              print('client_email:', data.get('client_email'))
+          except json.JSONDecodeError as e:
+              print('Valid JSON: NO')
+              print('Error:', e)
+          "
+          echo ""
+          echo "=== profiles.yml ==="
+          cat ~/.dbt/profiles.yml
+          echo ""
+          echo "=== dbt debug ==="
+          cd dbt/supplychain360model && dbt debug
+      
       # feature-infra
       - name: Setup Terraform
         if: contains(github.ref_name, 'feature-infra')
@@ -185,7 +215,34 @@ jobs:
 
           sed -i "s|\$GCP_PROJECT_ID|${{ secrets.GCP_PROJECT_ID }}|g" ~/.dbt/profiles.yml
           sed -i "s|\$DBT_BIGQUERY_DATASET|${{ secrets.DBT_BIGQUERY_DATASET }}|g" ~/.dbt/profiles.yml
-
+      
+      # Debug connection setup
+      - name: Debug connection setup
+        run: |
+          echo "=== Keyfile validation ==="
+          python3 -c "
+          import json
+          with open('/tmp/gcp_keyfile.json') as f:
+              content = f.read()
+          print('File size:', len(content), 'bytes')
+          print('First 30 chars:', repr(content[:30]))
+          try:
+              data = json.loads(content)
+              print('Valid JSON: YES')
+              print('type:', data.get('type'))
+              print('project_id:', data.get('project_id'))
+              print('client_email:', data.get('client_email'))
+          except json.JSONDecodeError as e:
+              print('Valid JSON: NO')
+              print('Error:', e)
+          "
+          echo ""
+          echo "=== profiles.yml ==="
+          cat ~/.dbt/profiles.yml
+          echo ""
+          echo "=== dbt debug ==="
+          cd dbt/supplychain360model && dbt debug
+      
       - name: dbt deps
         working-directory: dbt/supplychain360model
         run: dbt deps
