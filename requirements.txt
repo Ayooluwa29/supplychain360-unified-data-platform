@@ -102,3 +102,5 @@ tzdata==2025.3
 urllib3==2.6.3
 websockets==16.0
 zipp==3.23.0
+pytest==7.4.0
+pytest-mock==3.11.1
