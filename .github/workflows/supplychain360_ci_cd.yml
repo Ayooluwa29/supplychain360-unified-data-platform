@@ -288,3 +288,5 @@ jobs:
       - name: Terraform apply
         working-directory: infra
         run: terraform apply tfplan
+
+        # Updated for debug
