@@ -1,0 +1,219 @@
+name: Supplychain360 Pipeline
+
+on:
+  push:
+    branches:
+      - 'feature-*'
+      - dev
+      - main
+  pull_request:
+    branches:
+      - dev
+      - main
+
+jobs:
+  
+  # JOB 1 — runs for all branches except main
+  build-and-test:
+    runs-on: ubuntu-latest
+    if: github.ref_name != 'main'
+
+    env:
+      GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+      GCP_SERVICE_ACCOUNT_KEY: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
+      DBT_BIGQUERY_DATASET: ${{ secrets.DBT_BIGQUERY_DATASET }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+    steps:
+
+      # Always runs
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Create dbt profiles.yml
+        if: |
+          contains(github.ref_name, 'feature-modeling') ||
+          github.ref_name == 'dev'
+        run: |
+          mkdir -p ~/.dbt
+          cat > ~/.dbt/profiles.yml << EOF
+          supplychain360model:
+            target: dev
+            outputs:
+              dev:
+                type: bigquery
+                method: service-account-json
+                project: "${{ secrets.GCP_PROJECT_ID }}"
+                dataset: "${{ secrets.DBT_BIGQUERY_DATASET }}"
+                keyfile_json: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
+                threads: 4
+                timeout_seconds: 300
+                location: EU
+          EOF
+
+      # feature-infra
+      - name: Setup Terraform
+        if: contains(github.ref_name, 'feature-infra')
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.10.0"
+
+      - name: Terraform format check
+        if: contains(github.ref_name, 'feature-infra')
+        working-directory: infra
+        run: terraform fmt -check -recursive
+
+      - name: Terraform validate
+        if: contains(github.ref_name, 'feature-infra')
+        working-directory: infra
+        run: |
+          terraform init -backend=false
+          terraform validate
+
+      # feature-modeling
+      - name: dbt deps
+        if: |
+          contains(github.ref_name, 'feature-modeling') ||
+          github.ref_name == 'dev'
+        working-directory: dbt
+        run: dbt deps
+
+      - name: dbt compile
+        if: contains(github.ref_name, 'feature-modeling')
+        working-directory: dbt
+        run: dbt compile --target dev
+
+      - name: dbt test sources
+        if: contains(github.ref_name, 'feature-modeling')
+        working-directory: dbt
+        run: dbt test --select source:supplychain360_db
+
+      # feature-orchestration
+      - name: Airflow DAG integrity test
+        if: contains(github.ref_name, 'feature-orchestration')
+        env:
+          AIRFLOW_HOME: ${{ github.workspace }}/airflow
+          AIRFLOW__CORE__DAGS_FOLDER: ${{ github.workspace }}/airflow/dags
+          AIRFLOW__CORE__LOAD_EXAMPLES: "False"
+        run: |
+          airflow db init
+          pytest airflow/tests/test_dag_integrity.py -v
+
+      # feature-ingestion
+      - name: Ingestion unit tests
+        if: contains(github.ref_name, 'feature-ingestion')
+        run: pytest tests/unit/ -v
+
+      # dev
+      - name: dbt compile and run — dev
+        if: github.ref_name == 'dev'
+        working-directory: dbt
+        run: |
+          dbt compile --target dev
+          dbt run --target dev
+          dbt test --target dev
+
+      - name: Full test suite — dev
+        if: github.ref_name == 'dev'
+        run: pytest tests/ -v
+
+  # JOB 2 — runs only on main, gated by approval
+  deploy-production:
+    runs-on: ubuntu-latest
+    if: github.ref_name == 'main'
+    environment: production
+
+    env:
+      GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+      GCP_SERVICE_ACCOUNT_KEY: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
+      DBT_BIGQUERY_DATASET: ${{ secrets.DBT_BIGQUERY_DATASET }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+    steps:
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Create dbt profiles.yml
+        run: |
+          mkdir -p ~/.dbt
+          cat > ~/.dbt/profiles.yml << EOF
+          supplychain360model:
+            target: prod
+            outputs:
+              prod:
+                type: bigquery
+                method: service-account-json
+                project: "${{ secrets.GCP_PROJECT_ID }}"
+                dataset: "${{ secrets.DBT_BIGQUERY_DATASET }}"
+                keyfile_json: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
+                threads: 8
+                timeout_seconds: 300
+                location: US
+          EOF
+
+      - name: dbt deps
+        working-directory: dbt
+        run: dbt deps
+
+      - name: dbt run — prod
+        working-directory: dbt
+        run: dbt run --target prod
+
+      - name: dbt test — prod
+        working-directory: dbt
+        run: dbt test --target prod
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.10.0"
+
+      - name: Terraform init
+        working-directory: infra
+        run: terraform init
+
+      - name: Terraform plan
+        working-directory: infra
+        run: terraform plan -out=tfplan
+
+      - name: Terraform plan comment
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { execSync } = require('child_process');
+            const plan = execSync(
+              'terraform show -no-color tfplan',
+              { cwd: 'infra' }
+            ).toString();
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `## Terraform plan\n\`\`\`\n${plan}\n\`\`\``
+            });
+
+      - name: Terraform apply
+        working-directory: infra
+        run: terraform apply tfplan
