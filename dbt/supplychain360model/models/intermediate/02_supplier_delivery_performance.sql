@@ -25,7 +25,7 @@ suppliers AS (
         supplier_id,
         supplier_name,
         country,
-        category,
+        supplier_category,
         extracted_date
     FROM {{ ref('01_suppliers') }}
 ),
@@ -72,7 +72,7 @@ final AS (
         p.supplier_id,
         su.supplier_name,
         su.country                      AS supplier_country,
-        su.category                     AS supplier_category
+        su.supplier_category                     AS supplier_category
 
     FROM shipments sh
     LEFT JOIN products p USING (product_id)
