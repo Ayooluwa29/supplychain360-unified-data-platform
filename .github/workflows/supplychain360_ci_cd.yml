@@ -46,20 +46,28 @@ jobs:
           github.ref_name == 'dev'
         run: |
           mkdir -p ~/.dbt
-          cat > ~/.dbt/profiles.yml << EOF
+
+          # Write raw JSON secret to keyfile
+          echo '${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}' > /tmp/gcp_keyfile.json
+
+          cat > ~/.dbt/profiles.yml << 'EOF'
           supplychain360model:
             target: dev
             outputs:
               dev:
                 type: bigquery
-                method: service-account-json
-                project: "${{ secrets.GCP_PROJECT_ID }}"
-                dataset: "${{ secrets.DBT_BIGQUERY_DATASET }}"
-                keyfile_json: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
+                method: service-account
+                project: "$GCP_PROJECT_ID"
+                dataset: "$DBT_BIGQUERY_DATASET"
+                keyfile: /tmp/gcp_keyfile.json
                 threads: 4
                 timeout_seconds: 300
                 location: EU
           EOF
+
+          # Substitute env vars into profiles.yml
+          sed -i "s|\$GCP_PROJECT_ID|${{ secrets.GCP_PROJECT_ID }}|g" ~/.dbt/profiles.yml
+          sed -i "s|\$DBT_BIGQUERY_DATASET|${{ secrets.DBT_BIGQUERY_DATASET }}|g" ~/.dbt/profiles.yml
 
       # feature-infra
       - name: Setup Terraform
@@ -157,20 +165,26 @@ jobs:
       - name: Create dbt profiles.yml
         run: |
           mkdir -p ~/.dbt
-          cat > ~/.dbt/profiles.yml << EOF
+
+          echo '${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}' > /tmp/gcp_keyfile.json
+
+          cat > ~/.dbt/profiles.yml << 'EOF'
           supplychain360model:
             target: prod
             outputs:
               prod:
                 type: bigquery
-                method: service-account-json
-                project: "${{ secrets.GCP_PROJECT_ID }}"
-                dataset: "${{ secrets.DBT_BIGQUERY_DATASET }}"
-                keyfile_json: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
+                method: service-account
+                project: "$GCP_PROJECT_ID"
+                dataset: "$DBT_BIGQUERY_DATASET"
+                keyfile: /tmp/gcp_keyfile.json
                 threads: 8
                 timeout_seconds: 300
-                location: US
+                location: EU
           EOF
+
+          sed -i "s|\$GCP_PROJECT_ID|${{ secrets.GCP_PROJECT_ID }}|g" ~/.dbt/profiles.yml
+          sed -i "s|\$DBT_BIGQUERY_DATASET|${{ secrets.DBT_BIGQUERY_DATASET }}|g" ~/.dbt/profiles.yml
 
       - name: dbt deps
         working-directory: dbt/supplychain360model
