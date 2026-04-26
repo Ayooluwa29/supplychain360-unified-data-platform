@@ -7,6 +7,9 @@ from airflow.operators.bash import BashOperator
 from airflow.operators.empty import EmptyOperator
 from airflow.sensors.external_task import ExternalTaskSensor
 from airflow.utils.task_group import TaskGroup
+
+sys.path.append(os.path.dirname(__file__))
+
 import dbt_config as cfg
 
 
@@ -35,7 +38,7 @@ def dbt_bash(task_id: str, command: str, select: str | None = None, full_refresh
 
 with DAG(
     dag_id="transformation_dag",
-    schedule_interval=cfg.TRANSFORMATION_SCHEDULE,
+    schedule=cfg.TRANSFORMATION_SCHEDULE,
     start_date=datetime(2024, 1, 1),
     catchup=False,
     default_args=cfg.DEFAULT_ARGS,

@@ -3,11 +3,16 @@ from datetime import datetime
 from airflow import DAG
 from airflow.operators.empty import EmptyOperator
 from airflow.providers.airbyte.operators.airbyte import AirbyteTriggerSyncOperator
+import sys
+import os
+
+sys.path.append(os.path.dirname(__file__))
+
 import dbt_config as cfg
 
 with DAG(
     dag_id="ingestion_dag",
-    schedule_interval=cfg.INGESTION_SCHEDULE,
+    schedule=cfg.INGESTION_SCHEDULE,
     start_date=datetime(2024, 1, 1),
     catchup=False,
     default_args=cfg.DEFAULT_ARGS,
